@@ -61,11 +61,13 @@ func (t *Task) Print() {
 
 // Build a Task with Task.Content from string, with default values
 func buildTask(s string) Task {
+  tasks := TaskList()
 	task := Task{
 		Priority: 0,
 		Content:  s,
 		Date:     time.Now(),
 		Done:     false,
+    Index:    len(tasks)-1,
 	}
 	return task
 }
