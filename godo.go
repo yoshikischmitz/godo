@@ -41,8 +41,10 @@ func TaskList() []Task {
   task_list := make([]Task, len(task_str_slice))
   for i := range task_str_slice {
       if task_str_slice[i] != "\n" {
-        task_list[i] = ParseTask(task_str_slice[i])
-        task_list[i].Index = i
+        if task_str_slice[i] != "" {
+          task_list[i] = ParseTask(task_str_slice[i])
+          task_list[i].Index = i
+        }
       }
 	}
 
