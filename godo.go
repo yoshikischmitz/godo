@@ -12,6 +12,10 @@ import (
 	"time"
 )
 
+type Tasks struct {
+  json_path string
+}
+
 type Task struct {
 	Priority int64
 	Content  string
@@ -19,6 +23,10 @@ type Task struct {
 	Done     bool
 	Index    int
 }
+
+var (
+  json_path string = os.Getenv("HOME") + "/tasks.json"
+)
 
 // Takes a json string and converts it to a Task struct,(without an index)
 func ParseTask(j string) Task {
@@ -30,7 +38,7 @@ func ParseTask(j string) Task {
 
 // Returns an array of Tasks, with indices
 func TaskList() []Task {
-	file, _ := ioutil.ReadFile("tasks.json")
+	file, _ := ioutil.ReadFile(json_path)
 	file_str := string(file)
 	task_str_slice := strings.Split(file_str, "\n")
 	task_list := make([]Task, len(task_str_slice)-1)
@@ -75,10 +83,10 @@ func buildTask(s string) Task {
 
 // Append a new task to the end of the tasks file
 func WriteTask(task Task) error {
-	f, err := os.OpenFile("tasks.json", os.O_APPEND|os.O_WRONLY, 0600)
+	f, err := os.OpenFile(json_path, os.O_APPEND|os.O_WRONLY, 0600)
 	// check the error to see if we need to create a new file
 	if err != nil {
-		f2, nErr := os.Create("tasks.json")
+		f2, nErr := os.Create(json_path)
 		// if creation of new file fails, log it
 		if nErr != nil {
 			log.Fatal(nErr)
@@ -107,7 +115,7 @@ func PrintTasks() {
 func CompleteTask(index int) {
   task_list := TaskList()
   task_list[index].Done = true
-  os.Remove("tasks.json")
+  os.Remove(json_path)
   for i := range task_list {
     WriteTask(task_list[i])
   }
