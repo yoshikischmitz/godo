@@ -9,7 +9,5 @@ Current features:
 - Keeps track of tasks in a JSON file 
 
 TODO:
-- Complete tasks using "complete [task_number]
-- Show task number when using command ls
 - Assign priorities to task
 - Tags, Locations, Filters to tasks
