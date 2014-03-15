@@ -19,17 +19,17 @@ type Task struct {
 	Index    int
 }
 
-// Takes a string and converts it to a Task struct,(without an index)
-func ParseTask(s string) Task {
+// Takes a json string and converts it to a Task struct,(without an index)
+func ParseTask(j string) Task {
   var task Task
-  b := []byte(s)
+  b := []byte(j)
   json.Unmarshal(b, &task)
   return task
 }
 
 // Returns an array of Tasks, with indices
 func TaskList() []Task {
-	file, _ := ioutil.ReadFile("tasks.txt")
+	file, _ := ioutil.ReadFile("tasks.json")
 	file_str := string(file)
 	task_str_slice := strings.Split(file_str, "\n")
   task_list := make([]Task, len(task_str_slice))
@@ -85,6 +85,7 @@ func WriteTask(task Task) error {
 	}
   json, _ := json.Marshal(task)
 	f.Write(json)
+  f.WriteString("\n")
 	return nil
 }
 
