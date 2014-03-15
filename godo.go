@@ -7,7 +7,6 @@ import (
 	"github.com/codegangsta/cli"
 	"io/ioutil"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -22,17 +21,10 @@ type Task struct {
 
 // Takes a string and converts it to a Task struct,(without an index)
 func ParseTask(s string) Task {
-	task_str := strings.Split(s, "\t")
-	task_priority, _ := strconv.ParseInt(task_str[0], 2, 0)
-	task_time, _ := time.Parse(task_str[2], task_str[2])
-	task_done, _ := strconv.ParseBool(task_str[3])
-	task := Task{
-		Priority: task_priority,
-		Content:  task_str[1],
-		Date:     task_time,
-		Done:     task_done,
-	}
-	return task
+  var task Task
+  b := []byte(s)
+  json.Unmarshal(b, &task)
+  return task
 }
 
 // Returns an array of Tasks, with indices
@@ -81,11 +73,14 @@ func buildTask(s string) Task {
 // Append a new task to the end of the tasks file
 func WriteTask(task Task) error {
 	f, err := os.OpenFile("tasks.json", os.O_APPEND|os.O_WRONLY, 0600)
+  // check the error to see if we need to create a new file
 	if err != nil {
     f2, nErr := os.Create("tasks.json")
+    // if creation of new file fails, log it
     if nErr != nil {
       log.Fatal(nErr)
     }
+    // assign the new file variable to the nil f
     f = f2
 	}
   json, _ := json.Marshal(task)
