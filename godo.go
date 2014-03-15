@@ -1,6 +1,8 @@
 package main
 
 import (
+  "log"
+  "encoding/json"
 	"fmt"
 	"github.com/codegangsta/cli"
 	"io/ioutil"
@@ -78,12 +80,16 @@ func buildTask(s string) Task {
 
 // Append a new task to the end of the tasks file
 func WriteTask(task Task) error {
-	text := task.String()
-	f, err := os.OpenFile("tasks.txt", os.O_APPEND|os.O_WRONLY, 0600)
+	f, err := os.OpenFile("tasks.json", os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
-		return err
+    f2, nErr := os.Create("tasks.json")
+    if nErr != nil {
+      log.Fatal(nErr)
+    }
+    f = f2
 	}
-	f.WriteString("\n" + text)
+  json, _ := json.Marshal(task)
+	f.Write(json)
 	return nil
 }
 
@@ -108,7 +114,7 @@ func main() {
 			Usage: "add a task",
 			Action: func(c *cli.Context) {
 				task := buildTask(c.Args().First())
-				WriteTask(task)
+        WriteTask(task)
 				fmt.Printf("Task is added: %s\n", task.Content)
 			},
 		},
