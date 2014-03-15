@@ -65,7 +65,8 @@ func (t Task) String() string {
 
 // Print a Task
 func (t *Task) Print() {
-	fmt.Printf("[%d]\t[%s]\t[%s]\n", t.Index, t.Content, t.Date)
+  year, month , day := t.Date.Date()
+  fmt.Printf("[%d]\t[%d-%d-%d]\t%s\n", t.Index, year, month, day, t.Content, )
 }
 
 // Build a Task with Task.Content from string, with default values
