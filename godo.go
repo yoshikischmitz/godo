@@ -13,7 +13,7 @@ import (
 )
 
 type Tasks struct {
-  json_path string
+	json_path string
 }
 
 type Task struct {
@@ -25,7 +25,7 @@ type Task struct {
 }
 
 var (
-  json_path string = os.Getenv("HOME") + "/tasks.json"
+	json_path string = os.Getenv("HOME") + "/tasks.json"
 )
 
 // Takes a json string and converts it to a Task struct,(without an index)
@@ -59,14 +59,14 @@ func TaskList() []Task {
 // Example:
 // task := Task {Priority: 0, Content: "get groceries, Date: time.Now(), Done: false}
 // task.String //= "0       newtask 2014-03-14 22:22:47.875460951 -0600 MDT false
-func (t Task) String() string {
+func (t *Task) String() string {
 	return fmt.Sprintf("%d\t%s\t%s\t%t", t.Priority, t.Content, t.Date, t.Done)
 }
 
 // Print a Task
 func (t *Task) Print() {
-  year, month , day := t.Date.Date()
-  fmt.Printf("[%d]\t[%d-%d-%d]\t%s\n", t.Index, year, month, day, t.Content, )
+	year, month, day := t.Date.Date()
+	fmt.Printf("[%d]\t[%d-%d-%d]\t%s\n", t.Index, year, month, day, t.Content)
 }
 
 // Build a Task with Task.Content from string, with default values
@@ -107,20 +107,20 @@ func PrintTasks() {
 	for i := range task_list {
 		t := task_list[i]
 		if t.Done == false {
-			t.Print()
+			fmt.Printf("%s", t)
 		}
 	}
 }
 
 // Marks a task as complete by setting the complete field to true in the JSON file
 func CompleteTask(index int) {
-  task_list := TaskList()
-  task_list[index].Done = true
-  os.Remove(json_path)
-  for i := range task_list {
-    WriteTask(task_list[i])
-  }
-  fmt.Printf("Task Marked as complete: %s\n", task_list[index].Content)
+	task_list := TaskList()
+	task_list[index].Done = true
+	os.Remove(json_path)
+	for i := range task_list {
+		WriteTask(task_list[i])
+	}
+	fmt.Printf("Task Marked as complete: %s\n", task_list[index].Content)
 }
 
 func main() {
@@ -149,7 +149,7 @@ func main() {
 			Usage: "Marks a task specified by the integer argument as complete",
 			Action: func(c *cli.Context) {
 				index, _ := strconv.ParseInt(c.Args().First(), 10, 0)
-        CompleteTask(int(index))
+				CompleteTask(int(index))
 			},
 		},
 	}
