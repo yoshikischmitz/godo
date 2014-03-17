@@ -72,7 +72,7 @@ func WriteTask(task Task) error {
 
 	task_list.Tasks = append(task_list.Tasks, task)
 
-	json, _ := json.Marshal(task_list)
+	json, _ := json.MarshalIndent(task_list, "", "  ")
 
 	os.Remove(json_path)
 	ioutil.WriteFile(json_path, json, 0600)
@@ -89,7 +89,7 @@ func AddSubTask(task *Task, index int) {
 		}
 	}
 	os.Remove(json_path)
-	json, _ := json.Marshal(task_root)
+	json, _ := json.MarshalIndent(task_root, "", "  ")
 	ioutil.WriteFile(json_path, json, 0600)
 }
 
@@ -121,7 +121,7 @@ func CompleteTask(index int) {
 	task_root := TaskList()
 	task_root.Tasks[index].Done = true
 	fmt.Println(task_root.Tasks[index])
-	json, _ := json.Marshal(task_root)
+	json, _ := json.MarshalIndent(task_root, "", "  ")
 
 	os.Remove(json_path)
 	ioutil.WriteFile(json_path, json, 0600)
