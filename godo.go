@@ -22,6 +22,7 @@ type Task struct {
 	Date     time.Time
 	Done     bool
 	Index    int
+	SubTasks []*Task
 }
 
 var (
@@ -57,16 +58,11 @@ func TaskList() []Task {
 // A struct function for Task structs. Converts a the referenced Task to a tab delimited
 // String
 // Example:
-// task := Task {Priority: 0, Content: "get groceries, Date: time.Now(), Done: false}
-// task.String //= "0       newtask 2014-03-14 22:22:47.875460951 -0600 MDT false
+// task := Task {0, "get groceries",time.Now(),false}
+// tas.String() //= [19]    [2014-3-16]    get groceries
 func (t *Task) String() string {
-	return fmt.Sprintf("%d\t%s\t%s\t%t", t.Priority, t.Content, t.Date, t.Done)
-}
-
-// Print a Task
-func (t *Task) Print() {
 	year, month, day := t.Date.Date()
-	fmt.Printf("[%d]\t[%d-%d-%d]\t%s\n", t.Index, year, month, day, t.Content)
+	return fmt.Sprintf("[%d]\t[%d-%d-%d]\t%s", t.Index, year, month, day, t.Content)
 }
 
 // Build a Task with Task.Content from string, with default values
@@ -101,13 +97,25 @@ func WriteTask(task Task) error {
 	return nil
 }
 
+// Recursively Print Task + SubTasks
+func PrintTask(t *Task, idx int) {
+	// print our tabs out
+	for i := 0; i < idx; i++ {
+		fmt.Print("\t")
+	}
+	fmt.Println(t)
+	for _, task := range t.SubTasks {
+		PrintTask(task, idx+1)
+	}
+}
+
 // Print all tasks in tasks.txt
-func PrintTasks() {
+func PrintAllTasks() {
 	task_list := TaskList()
 	for i := range task_list {
 		t := task_list[i]
 		if t.Done == false {
-			fmt.Printf("%s", t)
+			PrintTask(&t, 0)
 		}
 	}
 }
@@ -141,7 +149,7 @@ func main() {
 			Name:  "ls",
 			Usage: "lists all tasks",
 			Action: func(c *cli.Context) {
-				PrintTasks()
+				PrintAllTasks()
 			},
 		},
 		{
