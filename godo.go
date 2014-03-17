@@ -118,7 +118,7 @@ func PrintAllTasks() {
 // Marks a task as complete by setting the complete field to true in the JSON file
 func CompleteTask(index int) {
 	task_root.Tasks[index].Done = true
-	fmt.Println(task_root.Tasks[index])
+
 	json, _ := json.MarshalIndent(task_root, "", "  ")
 
 	os.Remove(json_path)
