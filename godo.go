@@ -1,6 +1,7 @@
 package main
 
 import (
+	"runtime"
 	"encoding/json"
 	"fmt"
 	"github.com/codegangsta/cli"
@@ -8,6 +9,7 @@ import (
 	"os"
 	"strconv"
 	"time"
+	"log"
 )
 
 type TasksRoot struct {
@@ -24,8 +26,8 @@ type Task struct {
 }
 
 var (
-	json_path string    = os.Getenv("HOME") + "/tasks.json"
-	task_root TasksRoot = TaskList()
+	json_path string
+	task_root TasksRoot
 )
 
 // Takes a json string and converts it to a Task struct,(without an index)
@@ -38,7 +40,12 @@ func ParseTask(j string) Task {
 
 // Returns an array of Tasks, with indices
 func TaskList() TasksRoot {
-	file, _ := ioutil.ReadFile(json_path)
+	file, err := ioutil.ReadFile(json_path)
+
+	// if err is not nil file does not exist
+	if err != nil {
+		log.Fatal(err)
+	}
 	tasks_root := TasksRoot{}
 	json.Unmarshal(file, &tasks_root)
 	return tasks_root
@@ -62,7 +69,7 @@ func buildTask(s string) Task {
 		Content:  s,
 		Date:     time.Now(),
 		Done:     false,
-		Index:    len(tasks_root.Tasks) - 1,
+		Index:    len(tasks_root.Tasks),
 	}
 	return task
 }
@@ -125,6 +132,17 @@ func CompleteTask(index int) {
 	ioutil.WriteFile(json_path, json, 0600)
 
 	fmt.Printf("Task Marked as complete: %s\n", task_root.Tasks[index].Content)
+}
+
+func init() {
+	// Assume that if we're not on Windows, we're on a *nix-like system
+	// Should add more robust OS support in the future
+	if runtime.GOOS == "windows" {
+		json_path = os.Getenv("UserProfile") + "/My Documents/tasks.json"
+	} else {
+		json_path = os.Getenv("HOME") + "tasks.json"
+	}
+	task_root = TaskList()
 }
 
 func main() {
