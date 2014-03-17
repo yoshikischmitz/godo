@@ -1,4 +1,4 @@
-gotodo
+godo
 ======
 A simple command line task tracking app to help me learn Go. Uses cli by codegangsta
 
@@ -16,3 +16,4 @@ TODO:
 - Add flag to ls to display completed items as well
 - Add muiltask completion functionality
 - Add shortcuts for all commands 
+- Refactor all the code
