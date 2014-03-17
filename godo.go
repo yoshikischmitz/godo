@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 	"time"
+	"log"
 )
 
 type TasksRoot struct {
@@ -26,7 +27,7 @@ type Task struct {
 
 var (
 	json_path string
-	task_root TasksRoot 
+	task_root TasksRoot
 )
 
 // Takes a json string and converts it to a Task struct,(without an index)
@@ -40,9 +41,10 @@ func ParseTask(j string) Task {
 // Returns an array of Tasks, with indices
 func TaskList() TasksRoot {
 	file, err := ioutil.ReadFile(json_path)
+
+	// if err is not nil file does not exist
 	if err != nil {
-		fmt.Println(json_path)
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	tasks_root := TasksRoot{}
 	json.Unmarshal(file, &tasks_root)
@@ -67,7 +69,7 @@ func buildTask(s string) Task {
 		Content:  s,
 		Date:     time.Now(),
 		Done:     false,
-		Index:    len(tasks_root.Tasks) - 1,
+		Index:    len(tasks_root.Tasks),
 	}
 	return task
 }
