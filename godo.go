@@ -5,15 +5,13 @@ import (
 	"fmt"
 	"github.com/codegangsta/cli"
 	"io/ioutil"
-	"log"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 )
 
-type Tasks struct {
-	json_path string
+type TasksRoot struct {
+	Tasks []Task
 }
 
 type Task struct {
@@ -38,21 +36,11 @@ func ParseTask(j string) Task {
 }
 
 // Returns an array of Tasks, with indices
-func TaskList() []Task {
+func TaskList() TasksRoot {
 	file, _ := ioutil.ReadFile(json_path)
-	file_str := string(file)
-	task_str_slice := strings.Split(file_str, "\n")
-	task_list := make([]Task, len(task_str_slice)-1)
-	for i := range task_str_slice {
-		if task_str_slice[i] != "\n" {
-			if task_str_slice[i] != "" {
-				task_list[i] = ParseTask(task_str_slice[i])
-				task_list[i].Index = i
-			}
-		}
-	}
-
-	return task_list
+	tasks_root := TasksRoot{}
+	json.Unmarshal(file, &tasks_root)
+	return tasks_root
 }
 
 // A struct function for Task structs. Converts a the referenced Task to a tab delimited
@@ -67,34 +55,42 @@ func (t *Task) String() string {
 
 // Build a Task with Task.Content from string, with default values
 func buildTask(s string) Task {
-	tasks := TaskList()
+	tasks_root := TaskList()
 	task := Task{
 		Priority: 0,
 		Content:  s,
 		Date:     time.Now(),
 		Done:     false,
-		Index:    len(tasks) - 1,
+		Index:    len(tasks_root.Tasks) - 1,
 	}
 	return task
 }
 
-// Append a new task to the end of the tasks file
+// Add a new task to tasks file
 func WriteTask(task Task) error {
-	f, err := os.OpenFile(json_path, os.O_APPEND|os.O_WRONLY, 0600)
-	// check the error to see if we need to create a new file
-	if err != nil {
-		f2, nErr := os.Create(json_path)
-		// if creation of new file fails, log it
-		if nErr != nil {
-			log.Fatal(nErr)
-		}
-		// assign the new file variable to the nil f
-		f = f2
-	}
-	json, _ := json.Marshal(task)
-	f.Write(json)
-	f.WriteString("\n")
+	task_list := TaskList()
+
+	task_list.Tasks = append(task_list.Tasks, task)
+
+	json, _ := json.Marshal(task_list)
+
+	os.Remove(json_path)
+	ioutil.WriteFile(json_path, json, 0600)
+
 	return nil
+}
+
+func AddSubTask(task *Task, index int) {
+	task_root := TaskList()
+	for i := range task_root.Tasks {
+		t := &task_root.Tasks[i]
+		if t.Index == index {
+			t.SubTasks = append(t.SubTasks, task)
+		}
+	}
+	os.Remove(json_path)
+	json, _ := json.Marshal(task_root)
+	ioutil.WriteFile(json_path, json, 0600)
 }
 
 // Recursively Print Task + SubTasks
@@ -109,11 +105,11 @@ func PrintTask(t *Task, idx int) {
 	}
 }
 
-// Print all tasks in tasks.txt
+// Print all tasks in tasks.json
 func PrintAllTasks() {
-	task_list := TaskList()
-	for i := range task_list {
-		t := task_list[i]
+	task_root := TaskList()
+	for i := range task_root.Tasks {
+		t := task_root.Tasks[i]
 		if t.Done == false {
 			PrintTask(&t, 0)
 		}
@@ -122,13 +118,15 @@ func PrintAllTasks() {
 
 // Marks a task as complete by setting the complete field to true in the JSON file
 func CompleteTask(index int) {
-	task_list := TaskList()
-	task_list[index].Done = true
+	task_root := TaskList()
+	task_root.Tasks[index].Done = true
+	fmt.Println(task_root.Tasks[index])
+	json, _ := json.Marshal(task_root)
+
 	os.Remove(json_path)
-	for i := range task_list {
-		WriteTask(task_list[i])
-	}
-	fmt.Printf("Task Marked as complete: %s\n", task_list[index].Content)
+	ioutil.WriteFile(json_path, json, 0600)
+
+	fmt.Printf("Task Marked as complete: %s\n", task_root.Tasks[index].Content)
 }
 
 func main() {
@@ -143,6 +141,17 @@ func main() {
 				task := buildTask(c.Args().First())
 				WriteTask(task)
 				fmt.Printf("Task is added: %s\n", task.Content)
+			},
+		},
+		{
+			Name:  "subadd",
+			Usage: "add a sub-task",
+			Action: func(c *cli.Context) {
+				task_id, _ := strconv.ParseInt(c.Args()[0], 10, 0)
+				index := int(task_id)
+				task := buildTask(c.Args()[1])
+				AddSubTask(&task, index)
+				fmt.Printf("Subtask added: %s\n", task.Content)
 			},
 		},
 		{
