@@ -9,6 +9,7 @@ Current features:
 - Keeps track of tasks in a JSON file 
 
 TODO:
+- Write more tests
 - Assign priorities to task
 - Display tasks by priority
 - Tags, Locations, Filters to tasks
