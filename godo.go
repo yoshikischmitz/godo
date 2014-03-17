@@ -24,7 +24,8 @@ type Task struct {
 }
 
 var (
-	json_path string = os.Getenv("HOME") + "/tasks.json"
+	json_path string    = os.Getenv("HOME") + "/tasks.json"
+	task_root TasksRoot = TaskList()
 )
 
 // Takes a json string and converts it to a Task struct,(without an index)
@@ -67,7 +68,7 @@ func buildTask(s string) Task {
 }
 
 // Add a new task to tasks file
-func WriteTask(task Task) error {
+func AddTask(task Task) error {
 	task_list := TaskList()
 
 	task_list.Tasks = append(task_list.Tasks, task)
@@ -81,7 +82,6 @@ func WriteTask(task Task) error {
 }
 
 func AddSubTask(task *Task, index int) {
-	task_root := TaskList()
 	for i := range task_root.Tasks {
 		t := &task_root.Tasks[i]
 		if t.Index == index {
@@ -107,7 +107,6 @@ func PrintTask(t *Task, idx int) {
 
 // Print all tasks in tasks.json
 func PrintAllTasks() {
-	task_root := TaskList()
 	for i := range task_root.Tasks {
 		t := task_root.Tasks[i]
 		if t.Done == false {
@@ -118,7 +117,6 @@ func PrintAllTasks() {
 
 // Marks a task as complete by setting the complete field to true in the JSON file
 func CompleteTask(index int) {
-	task_root := TaskList()
 	task_root.Tasks[index].Done = true
 	fmt.Println(task_root.Tasks[index])
 	json, _ := json.MarshalIndent(task_root, "", "  ")
@@ -139,7 +137,7 @@ func main() {
 			Usage: "add a task",
 			Action: func(c *cli.Context) {
 				task := buildTask(c.Args().First())
-				WriteTask(task)
+				AddTask(task)
 				fmt.Printf("Task is added: %s\n", task.Content)
 			},
 		},
