@@ -13,7 +13,6 @@ TODO:
 - Assign priorities to task
 - Display tasks by priority
 - Tags, Locations, Filters to tasks
-- Show task number in task list as its order in the printed list, rather that its index value
 - Add flag to ls to display completed items as well
 - Add muiltask completion functionality
 - Add shortcuts for all commands 
