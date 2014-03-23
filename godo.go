@@ -122,10 +122,15 @@ func PrintAllTasks() {
 
 // Sets the complete field to true at relative index for uncomplete tasks
 func CompleteTask(index int) {
+	// Return index to 0-index
+	index -= 1
 	task_root.Tasks[index].Done = true
 	var j int
 	for i := range task_root.Tasks {
 		if task_root.Tasks[i].Done == false {
+			if j == index {
+				task_root.Tasks[i].Done = true
+			}
 			j += 1
 		}
 	}
