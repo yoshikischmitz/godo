@@ -1,15 +1,15 @@
 package main
 
 import (
-	"runtime"
 	"encoding/json"
 	"fmt"
 	"github.com/codegangsta/cli"
 	"io/ioutil"
+	"log"
 	"os"
+	"runtime"
 	"strconv"
 	"time"
-	"log"
 )
 
 type TasksRoot struct {
@@ -30,14 +30,6 @@ var (
 	task_root TasksRoot
 )
 
-// Takes a json string and converts it to a Task struct,(without an index)
-func ParseTask(j string) Task {
-	var task Task
-	b := []byte(j)
-	json.Unmarshal(b, &task)
-	return task
-}
-
 // Returns an array of Tasks, with indices
 func TaskList() TasksRoot {
 	file, err := ioutil.ReadFile(json_path)
@@ -56,9 +48,9 @@ func TaskList() TasksRoot {
 // Example:
 // task := Task {0, "get groceries",time.Now(),false}
 // tas.String() //= [19]    [2014-3-16]    get groceries
-func (t *Task) String() string {
+func (t *Task) Print(i int) string {
 	year, month, day := t.Date.Date()
-	return fmt.Sprintf("[%d]\t[%d-%d-%d]\t%s", t.Index, year, month, day, t.Content)
+	return fmt.Sprintf("[%d]\t[%d-%d-%d]\t%s", i, year, month, day, t.Content)
 }
 
 // Build a Task with Task.Content from string, with default values
@@ -101,31 +93,42 @@ func AddSubTask(task *Task, index int) {
 }
 
 // Recursively Print Task + SubTasks
-func PrintTask(t *Task, idx int) {
+func PrintTask(t *Task, idx int, tIdx int) {
 	// print our tabs out
-	for i := 0; i < idx; i++ {
-		fmt.Print("\t")
+	for i := 0; i < tIdx; i++ {
+		if tIdx != 0 {
+			fmt.Print("|--")
+		}
 	}
-	fmt.Println(t)
+	year, month, day := t.Date.Date()
+	fmt.Printf("[%d]\t[%d-%d-%d]\t%s\n", idx, year, month, day, t.Content)
 	for _, task := range t.SubTasks {
-		PrintTask(task, idx+1)
+		tIdx += 1
+		PrintTask(task, 1, tIdx)
 	}
 }
 
 // Print all tasks in tasks.json
 func PrintAllTasks() {
+	var j int
 	for i := range task_root.Tasks {
 		t := task_root.Tasks[i]
 		if t.Done == false {
-			PrintTask(&t, 0)
+			j += 1
+			PrintTask(&t, j, 0)
 		}
 	}
 }
 
-// Marks a task as complete by setting the complete field to true in the JSON file
+// Sets the complete field to true at relative index for uncomplete tasks
 func CompleteTask(index int) {
 	task_root.Tasks[index].Done = true
-
+	var j int
+	for i := range task_root.Tasks {
+		if task_root.Tasks[i].Done == false {
+			j += 1
+		}
+	}
 	json, _ := json.MarshalIndent(task_root, "", "  ")
 
 	os.Remove(json_path)
@@ -140,7 +143,7 @@ func init() {
 	if runtime.GOOS == "windows" {
 		json_path = os.Getenv("UserProfile") + "/My Documents/tasks.json"
 	} else {
-		json_path = os.Getenv("HOME") + "tasks.json"
+		json_path = os.Getenv("HOME") + "/tasks.json"
 	}
 	task_root = TaskList()
 }
