@@ -144,6 +144,11 @@ func CompleteTask(index int) {
 
 }
 
+func ParseIndex(c *cli.Context) int{
+	i, _ := strconv.ParseInt(c.Args().First(), 10, 0)
+	return int(i)
+}
+
 func init() {
 	// Assume that if we're not on Windows, we're on a *nix-like system
 	// Should add more robust OS support in the future
@@ -191,8 +196,8 @@ func main() {
 			Name:  "complete",
 			Usage: "Marks a task specified by the integer argument as complete",
 			Action: func(c *cli.Context) {
-				index, _ := strconv.ParseInt(c.Args().First(), 10, 0)
-				CompleteTask(int(index))
+				index := ParseIndex(c)
+				CompleteTask(index)
 			},
 		},
 	}
