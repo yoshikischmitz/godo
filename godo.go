@@ -124,14 +124,15 @@ func PrintAllTasks() {
 func CompleteTask(index int) {
 	// Return index to 0-index
 	index -= 1
-	task_root.Tasks[index].Done = true
 	var j int
 	for i := range task_root.Tasks {
 		if task_root.Tasks[i].Done == false {
 			if j == index {
 				task_root.Tasks[i].Done = true
+				fmt.Printf("Task Marked as complete: %s\n", task_root.Tasks[i].Content)
 			}
 			j += 1
+
 		}
 	}
 	json, _ := json.MarshalIndent(task_root, "", "  ")
@@ -139,7 +140,6 @@ func CompleteTask(index int) {
 	os.Remove(json_path)
 	ioutil.WriteFile(json_path, json, 0600)
 
-	fmt.Printf("Task Marked as complete: %s\n", task_root.Tasks[index].Content)
 }
 
 func init() {
