@@ -125,6 +125,8 @@ func CompleteTask(index int) {
 	// Return index to 0-index
 	index -= 1
 	var j int
+	// Note, i keeps track of the real index of the task in the records, j keeps track of the printed index of the task
+	// as seen by the user.
 	for i := range task_root.Tasks {
 		if task_root.Tasks[i].Done == false {
 			if j == index {
