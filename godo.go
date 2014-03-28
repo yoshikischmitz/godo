@@ -82,12 +82,9 @@ func AddTask(task Task) error {
 }
 
 func AddSubTask(task *Task, index int) {
-	for i := range task_root.Tasks {
-		t := &task_root.Tasks[i]
-		if t.Index == index {
-			t.SubTasks = append(t.SubTasks, task)
-		}
-	}
+	i, _ := real_index(index)
+	t := &task_root.Tasks[i]
+	t.SubTasks = append(t.SubTasks, task)
 	os.Remove(json_path)
 	json, _ := json.MarshalIndent(task_root, "", "  ")
 	ioutil.WriteFile(json_path, json, 0600)
