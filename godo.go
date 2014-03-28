@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"errors"
 	"github.com/codegangsta/cli"
 	"io/ioutil"
 	"log"
@@ -120,23 +121,28 @@ func PrintAllTasks() {
 	}
 }
 
-// Sets the complete field to true at relative index for uncomplete tasks
-func CompleteTask(index int) {
-	// Return index to 0-index
-	index -= 1
+func real_index(pidx int) (int, error) {
+	// Return print index to 0-index
+	pidx -= 1
+	// i keeps track of the real index in data,
+	// j keeps track of the index of completed items, as seen by user
 	var j int
-	// Note, i keeps track of the real index of the task in the records, j keeps track of the printed index of the task
-	// as seen by the user.
 	for i := range task_root.Tasks {
 		if task_root.Tasks[i].Done == false {
-			if j == index {
-				task_root.Tasks[i].Done = true
-				fmt.Printf("Task Marked as complete: %s\n", task_root.Tasks[i].Content)
+			if j == pidx {
+				return i, nil
 			}
 			j += 1
-
 		}
 	}
+	return 0, errors.New("can't finx index")
+}
+
+// Sets the complete field to true at relative index for uncomplete tasks
+func CompleteTask(index int) {
+	i, _ := real_index(index)
+	task_root.Tasks[i].Done = true
+	fmt.Printf("Task Marked as complete: %s\n", task_root.Tasks[i].Content)
 	json, _ := json.MarshalIndent(task_root, "", "  ")
 
 	os.Remove(json_path)
