@@ -126,10 +126,7 @@ func CompleteTask(index int) {
 	i, _ := real_index(index)
 	task_root.Tasks[i].Done = true
 	fmt.Printf("Task Marked as complete: %s\n", task_root.Tasks[i].Content)
-	json, _ := json.MarshalIndent(task_root, "", "  ")
-
-	os.Remove(json_path)
-	ioutil.WriteFile(json_path, json, 0600)
+	WriteJson()
 
 }
 
