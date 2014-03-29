@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/codegangsta/cli"
 	"io/ioutil"
-	"log"
 	"os"
 	"runtime"
 	"strconv"
@@ -37,7 +36,7 @@ func TaskList() TasksRoot {
 
 	// if err is not nil file does not exist
 	if err != nil {
-		log.Fatal(err)
+		os.Open(json_path)
 	}
 	tasks_root := TasksRoot{}
 	json.Unmarshal(file, &tasks_root)
