@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"errors"
+	"fmt"
 	"github.com/codegangsta/cli"
 	"io/ioutil"
 	"log"
@@ -44,40 +44,28 @@ func TaskList() TasksRoot {
 	return tasks_root
 }
 
-// A struct function for Task structs. Converts a the referenced Task to a tab delimited
-// String
-// Example:
-// task := Task {0, "get groceries",time.Now(),false}
-// tas.String() //= [19]    [2014-3-16]    get groceries
-func (t *Task) Print(i int) string {
-	year, month, day := t.Date.Date()
-	return fmt.Sprintf("[%d]\t[%d-%d-%d]\t%s", i, year, month, day, t.Content)
-}
-
-// Build a Task with Task.Content from string, with default values
+// Build a Task with Task.Content from string with default values.
 func buildTask(s string) Task {
-	tasks_root := TaskList()
 	task := Task{
 		Priority: 0,
 		Content:  s,
 		Date:     time.Now(),
 		Done:     false,
-		Index:    len(tasks_root.Tasks),
+		Index:    len(task_root.Tasks),
 	}
 	return task
 }
 
-// Add a new task to tasks file
-func AddTask(task Task) error {
-	task_list := TaskList()
-
-	task_list.Tasks = append(task_list.Tasks, task)
-
-	json, _ := json.MarshalIndent(task_list, "", "  ")
-
+func WriteJson() {
+	json, _ := json.MarshalIndent(task_root, "", "  ")
 	os.Remove(json_path)
 	ioutil.WriteFile(json_path, json, 0600)
+}
 
+// Add a new task to tasks file
+func AddTask(task Task) error {
+	task_root.Tasks = append(task_root.Tasks, task)
+	WriteJson()
 	return nil
 }
 
@@ -85,9 +73,7 @@ func AddSubTask(task *Task, index int) {
 	i, _ := real_index(index)
 	t := &task_root.Tasks[i]
 	t.SubTasks = append(t.SubTasks, task)
-	os.Remove(json_path)
-	json, _ := json.MarshalIndent(task_root, "", "  ")
-	ioutil.WriteFile(json_path, json, 0600)
+	WriteJson()
 }
 
 // Recursively Print Task + SubTasks
@@ -147,7 +133,7 @@ func CompleteTask(index int) {
 
 }
 
-func ParseIndex(c *cli.Context) int{
+func ParseIndex(c *cli.Context) int {
 	i, _ := strconv.ParseInt(c.Args().First(), 10, 0)
 	return int(i)
 }
