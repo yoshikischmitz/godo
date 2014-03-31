@@ -30,7 +30,8 @@ Usage:
     [2]     [2014-3-28]     Add more features to Godo
     [3]     [2014-3-29]     Update Godo readme file
     
-    
+Though I do use this myself, if you want a more stable and (currently)feature-rich solution I recommend the excellent bash based <a href-"todotxt.com">todo.txt</a>
+
 Current features:
 - Add new tasks with command godo add "todo text here"
 - Add subtasks with godo subadd [parent task number] "subtask here"
