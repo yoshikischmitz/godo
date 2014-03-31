@@ -32,6 +32,8 @@ Usage:
     
 Though I do use this myself, if you want a more stable and (currently)feature-rich solution I recommend the excellent bash based <a href-"todotxt.com">todo.txt</a>
 
+Windows and Linux binaries are available <a href="https://sourceforge.net/projects/godo-cli/files/?source=navbar">here</a>.
+
 Current features:
 - Add new tasks with command godo add "todo text here"
 - Add subtasks with godo subadd [parent task number] "subtask here"
