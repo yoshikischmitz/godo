@@ -2,7 +2,7 @@ godo
 ======
 A simple command line task tracking app to help me learn Go. Uses cli by codegangsta. By default it creates a tasks.json file in your home folder if you're on linux, or in My Documents on windows.
 
-Usage:
+##Usage:
 
     $ godo ls
     [1]     [2014-3-27]     Get groceries
@@ -32,7 +32,10 @@ Usage:
     
 Though I do use this myself, if you want a more stable and (currently)feature-rich solution I recommend the excellent bash based <a href-"todotxt.com">todo.txt</a>
 
+##Binaries:
 Windows and Linux binaries are available <a href="https://sourceforge.net/projects/godo-cli/files/?source=navbar">here</a>.
+
+##Features
 
 Current features:
 - Add new tasks with command godo add "todo text here"
