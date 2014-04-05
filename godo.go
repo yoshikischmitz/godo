@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"strconv"
 	"time"
+	"github.com/nsf/termbox-go"
 )
 
 type TasksRoot struct {
@@ -134,6 +135,70 @@ func ParseIndex(c *cli.Context) int {
 	return int(i)
 }
 
+func draw_string(s string, row int) {
+	const coldef = termbox.ColorDefault
+	for i, x := range s {
+		termbox.SetCell(i, row, x, coldef, coldef)
+	}
+}
+
+func DrawTask(t *Task, index int, row int) int {
+	year, month, day := t.Date.Date()
+	draw_string(
+		fmt.Sprintf("[%d]\t[%d-%d-%d]\t%s\n", index, year, month, day, t.Content),
+		row)
+	rowdiff := 1
+	for i, task := range t.SubTasks {
+		i++
+		rowdiff += DrawTask(task, i, row+rowdiff)
+	}
+	return rowdiff
+}
+
+// Print all tasks in tasks.json
+func DrawAllTasks() {
+	var j int
+	row := 1
+	for i := range task_root.Tasks {
+		t := task_root.Tasks[i]
+		if t.Done == false {
+			j += 1
+			row += DrawTask(&t, j, row)
+		}
+	}
+}
+
+func draw_tasks() {
+	const coldef = termbox.ColorDefault
+	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
+	PrintAllTasks()
+	termbox.Flush()
+}
+
+
+
+func runTermbox() {
+	err := termbox.Init()
+	if err != nil {
+		panic(err)
+	}
+	defer termbox.Close()
+	draw_tasks()
+loop:
+	for {
+		switch ev := termbox.PollEvent(); ev.Type {
+		case termbox.EventKey:
+			switch ev.Key {
+			case termbox.KeyEsc:
+				break loop
+			}
+		case termbox.EventError:
+			panic(ev.Err)
+		}
+		draw_tasks()
+	}
+}
+
 func init() {
 	// Assume that if we're not on Windows, we're on a *nix-like system
 	// Should add more robust OS support in the future
@@ -183,6 +248,13 @@ func main() {
 			Action: func(c *cli.Context) {
 				index := ParseIndex(c)
 				CompleteTask(index)
+			},
+		},
+		{
+			Name: "board",
+			Usage: "starts godo in go board",
+			Action: func(c *cli.Context){
+				runTermbox()
 			},
 		},
 	}
